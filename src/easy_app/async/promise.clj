@@ -41,7 +41,7 @@
                                  %
                                  (update-in % [:callbacks] conj cb)))]
       (when (:has-value? state*)
-        (cb (:val state)))))
+        (cb (:val state*)))))
 
   (value [this] (:val @state)))
 

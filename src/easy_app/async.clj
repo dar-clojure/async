@@ -10,7 +10,7 @@
   (assert nil "<< used not in (go ...) block"))
 
 (defmacro <? [promise]
-  `(let [ret (<< promise)]
+  `(let [ret (<< ~promise)]
      (when (instance? Throwable ret)
        (throw ret))
      ret))
