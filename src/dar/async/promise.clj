@@ -1,4 +1,4 @@
-(ns easy-app.async.promise
+(ns dar.async.promise
   (:import (java.lang Exception)))
 
 (defprotocol IPromise

@@ -10,15 +10,15 @@
 ;; by Timothy Baldridge
 ;; April 13, 2013
 
-;; adapted for easy-app.async
+;; adapted for dar.async
 ;; by Eldar Gabdullin
 ;; March, 2014
 
-(ns easy-app.async.go-machine
+(ns dar.async.go-machine
   (:refer-clojure :exclude [all])
   (:require [clojure.pprint :refer [pprint]]
             [clojure.set :refer [intersection]]
-            [easy-app.async.promise :as prom])
+            [dar.async.promise :as prom])
   (:import [java.util.concurrent.atomic AtomicReferenceArray]))
 
 (defn debug [x]
@@ -951,7 +951,7 @@
 
 (def async-custom-terminators
   {'<< `receive
-   'easy-app.async/<< `receive
+   'dar.async/<< `receive
    :Return `fulfil-promise})
 
 (defn make [body num-user-params env user-transitions]

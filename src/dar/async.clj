@@ -1,6 +1,6 @@
-(ns easy-app.async
-  (:require [easy-app.async.go-machine :as machine]
-            [easy-app.async.promise :as prom])
+(ns dar.async
+  (:require [dar.async.go-machine :as machine]
+            [dar.async.promise :as prom])
   (:import (java.lang Throwable)))
 
 (defn <<
