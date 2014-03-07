@@ -18,7 +18,7 @@
   (:refer-clojure :exclude [all])
   (:require [clojure.pprint :refer [pprint]]
             [clojure.set :refer [intersection]]
-            [dar.async.promise :as prom])
+            [dar.async.promise :refer :all])
   (:import [java.util.concurrent.atomic AtomicReferenceArray]))
 
 (defn debug [x]
@@ -930,29 +930,29 @@
   (try
     ((aget-object state FN-IDX) state)
     (catch Throwable ex
-      (prom/fulfil (aget-object state USER-START-IDX) nil)
+      (fulfill (aget-object state USER-START-IDX) nil)
       (throw ex))))
 
 (defn receive [state blk p]
-  (if (prom/fulfiled? p)
+  (if (fulfilled? p)
     (do
-      (aset-all! state VALUE-IDX (prom/value p) STATE-IDX blk)
+      (aset-all! state VALUE-IDX (promise-value p) STATE-IDX blk)
       :recur)
     (do
-      (prom/then p (fn [x]
-                     (aset-all! state VALUE-IDX x STATE-IDX blk)
-                     (run state)))
+      (then p (fn [x]
+                (aset-all! state VALUE-IDX x STATE-IDX blk)
+                (run state)))
       nil)))
 
-(defn fulfil-promise [state value]
+(defn fulfill-promise [state value]
   (let [p (aget-object state USER-START-IDX)]
-    (prom/fulfil p value)
+    (fulfill p value)
     p))
 
 (def async-custom-terminators
-  {'<< `receive
-   'dar.async/<< `receive
-   :Return `fulfil-promise})
+  {'<! `receive
+   'dar.async/<! `receive
+   :Return `fulfill-promise})
 
 (defn make [body num-user-params env user-transitions]
   (-> (parse-to-state-machine body env user-transitions)
