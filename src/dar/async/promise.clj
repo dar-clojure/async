@@ -23,7 +23,7 @@
 
 (defrecord PromiseState [val has-value? callbacks])
 
-(deftype Promise [state]
+(deftype Promise [state abort-cb]
   IPromise
   (fulfill
    [this val]
@@ -31,16 +31,16 @@
                    (when (:has-value? state)
                      (throw (Exception. "Promise was already fulfiled.")))
                    (assoc state :val val :has-value? true)))
-    (when-let [callbacks (-> @state :callbacks seq)]
-      (swap! state assoc :callbacks nil)
-      (doseq [cb callbacks]
-        (cb val))))
+   (doseq [cb (:callbacks @state)]
+     (cb val)))
 
    (fulfill
     [this]
     (fulfill this nil))
 
-  (fulfilled? [this] (:has-value? @state))
+  (fulfilled?
+   [this]
+   (:has-value? @state))
 
   (then
    [this cb]
@@ -49,7 +49,17 @@
      (when (:has-value? state*)
        (cb (:val state*)))))
 
-  (promise-value [this] (:val @state)))
+  (promise-value
+   [this]
+   (:val @state))
 
-(defn make-promise []
-  (Promise. (atom (->PromiseState nil false []))))
+  (abort
+   [this]
+   (when abort-cb
+     (abort-cb))))
+
+(defn make-promise
+  ([abort-cb]
+   (Promise. (atom (->PromiseState nil false [])) abort-cb))
+  ([]
+   (make-promise nil)))
