@@ -1,16 +1,15 @@
 (ns dar.async
   (:require [dar.async.go-machine :as machine]
-            [dar.async.promise :refer :all])
-  (:import (java.lang Throwable)))
+            [dar.async.promise :refer :all]))
 
-(defn <!
+(defn <<
   "Gets a val from promise. Must be called inside a (go ...) block.
   Will park if nothing is available."
   [promise]
-  (assert nil "<! used not in (go ...) block"))
+  (assert nil "<< used not in (go ...) block"))
 
 (defmacro go* [& body]
-  `(let [p# (make-promise)
+  `(let [p# (new-promise)
          captured-bindings# (clojure.lang.Var/getThreadBindingFrame)
          f# ~(machine/make body 1 &env machine/async-custom-terminators)
          state# (-> (f#)
@@ -25,19 +24,19 @@
           (catch Throwable ex
             ex))))
 
-(defmacro <? [promise]
-  `(let [ret# (<! ~promise)]
+(defmacro <? [p]
+  `(let [ret# (<< ~p)]
      (when (instance? Throwable ret#)
        (throw ret#))
      ret#))
 
-(defmacro <!! [p]
+(defmacro <<! [p]
   `(let [native-promise# (promise)]
      (then ~p #(deliver native-promise# %))
      @native-promise#))
 
-(defmacro <?! [promise]
-  `(let [ret# (<!! ~promise)]
+(defmacro <?! [p]
+  `(let [ret# (<<! ~p)]
      (when (instance? Throwable ret#)
        (throw ret#))
      ret#))

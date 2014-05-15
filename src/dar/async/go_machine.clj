@@ -930,13 +930,13 @@
   (try
     ((aget-object state FN-IDX) state)
     (catch Throwable ex
-      (fulfill (aget-object state USER-START-IDX) nil)
+      (deliver! (aget-object state USER-START-IDX) nil)
       (throw ex))))
 
 (defn receive [state blk p]
-  (if (fulfilled? p)
+  (if (delivered? p)
     (do
-      (aset-all! state VALUE-IDX (promise-value p) STATE-IDX blk)
+      (aset-all! state VALUE-IDX (value p) STATE-IDX blk)
       :recur)
     (do
       (then p (fn [x]
@@ -944,15 +944,15 @@
                 (run state)))
       nil)))
 
-(defn fulfill-promise [state value]
+(defn deliver-promise [state value]
   (let [p (aget-object state USER-START-IDX)]
-    (fulfill p value)
+    (deliver! p value)
     p))
 
 (def async-custom-terminators
-  {'<! `receive
-   'dar.async/<! `receive
-   :Return `fulfill-promise})
+  {'<< `receive
+   'dar.async/<< `receive
+   :Return `deliver-promise})
 
 (defn make [body num-user-params env user-transitions]
   (-> (parse-to-state-machine body env user-transitions)
