@@ -9,20 +9,13 @@
   (assert nil "<< used not in (go ...) block"))
 
 (defmacro go* [& body]
-  `(let [p# (new-promise)
-         captured-bindings# (clojure.lang.Var/getThreadBindingFrame)
-         f# ~(machine/make body 1 &env machine/async-custom-terminators)
-         state# (-> (f#)
-                    (machine/aset-all! machine/USER-START-IDX p#
-                                       machine/BINDINGS-IDX captured-bindings#))]
-     (machine/run state#)
-     p#))
+  `(machine/go ~@body))
 
 (defmacro go [& body]
   `(go* (try
           ~@body
-          (catch Throwable ex
-            ex))))
+          (catch Throwable ex#
+            ex#))))
 
 (defmacro <? [p]
   `(let [ret# (<< ~p)]
