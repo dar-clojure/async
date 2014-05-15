@@ -1,5 +1,4 @@
-(ns dar.async.promise
-  (:import (java.util ArrayList)))
+(ns dar.async.promise)
 
 (set! *warn-on-reflection* true)
 
