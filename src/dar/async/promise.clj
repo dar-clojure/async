@@ -1,4 +1,7 @@
-(ns dar.async.promise)
+(ns dar.async.promise
+  (:import (java.util ArrayList)))
+
+(set! *warn-on-reflection* true)
 
 (defprotocol IPromise
   (abort! [this])
@@ -26,12 +29,12 @@
 
 (deftype Promise [state abort-cb]
   IPromise
-  (deliver! [this val] (do
-                         (swap! state (fn [state]
-                                        (if (:has-value? state)
-                                          state
-                                          (assoc state :val val :has-value? true))))
-                         (when-let [callbacks (:callbacks @state)]
+  (deliver! [this val] (let [next-state (swap! state (fn [state]
+                                                       (if (:has-value? state)
+                                                         (assoc state :callbacks nil)
+                                                         (assoc state :val val :has-value? true))))
+                             callbacks (:callbacks next-state)]
+                         (when callbacks
                            (swap! state assoc :callbacks nil)
                            (doseq [cb! callbacks]
                              (cb! val)))
