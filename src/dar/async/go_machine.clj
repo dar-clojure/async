@@ -1048,11 +1048,10 @@
    :Return `deliver-promise})
 
 (defmacro go [& body]
-  `(let [p# (new-promise)
-         captured-bindings# (clojure.lang.Var/getThreadBindingFrame)
+  `(let [captured-bindings# (clojure.lang.Var/getThreadBindingFrame)
          f# ~(state-machine `(do ~@body) 1 (keys &env) async-custom-terminators)
-         state# (-> (f#)
-                    (aset-all! USER-START-IDX p#
-                               BINDINGS-IDX captured-bindings#))]
+         state# (f#)
+         p# (new-promise #(abort! (aget-object state# VALUE-IDX)))]
+     (aset-all! state# USER-START-IDX p# BINDINGS-IDX captured-bindings#)
      (run-state-machine-wrapped state#)
      p#))
