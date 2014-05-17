@@ -49,7 +49,7 @@
   (value [this] (:val @state))
 
   (abort! [this] (when abort-cb
-                   (abort-cb))))
+                   (abort-cb this))))
 
 (defn new-promise
   ([] (new-promise nil))
