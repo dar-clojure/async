@@ -1,13 +1,27 @@
-(ns dar.async.promise)
+(ns dar.async.promise
+  (:import (java.util.concurrent.atomic AtomicBoolean)))
 
 (set! *warn-on-reflection* true)
 
 (defprotocol IPromise
-  (abort! [this])
-  (deliver! [this val])
-  (delivered? [this])
-  (then [this cb])
-  (value [this]))
+  (abort! [this]
+    "Notifies the underlying async computation that the
+    result is no longer needed. Generally it should
+    release all resources and yield an exception as a promised value.
+    However, this method is advisory. Computation might still
+    complete successfully after abort. This method might be called
+    several times.")
+  (deliver! [this val]
+    "Delivers the supplied value to promise and notifies
+    all registered `then` callbacks. Subequent calls
+    will be ignored.")
+  (delivered? [this]
+    "Returns true if the result was already delivered.")
+  (then [this cb]
+    "Registers a result handler function. It might be called
+    immedeately if the promise was already delivered.")
+  (value [this]
+    "Returns the delivered value or nil"))
 
 (extend-protocol IPromise
   nil
@@ -26,7 +40,7 @@
 
 (defrecord PromiseState [val has-value? callbacks])
 
-(deftype Promise [state abort-cb]
+(deftype Promise [state abort-cb ^AtomicBoolean aborted?]
   IPromise
   (deliver! [this val] (let [next-state (swap! state (fn [state]
                                                        (if (:has-value? state)
@@ -41,7 +55,8 @@
 
   (delivered? [this] (:has-value? @state))
 
-  (then [this cb] (let [state* (swap! state #(if (:has-value? %) %
+  (then [this cb] (let [state* (swap! state #(if (:has-value? %)
+                                               %
                                                (update-in % [:callbacks] conj cb)))]
                     (when (:has-value? state*)
                       (cb (:val state*)))))
@@ -49,8 +64,13 @@
   (value [this] (:val @state))
 
   (abort! [this] (when abort-cb
-                   (abort-cb this))))
+                   (when (.compareAndSet aborted? false true)
+                     (abort-cb this)))))
 
 (defn new-promise
   ([] (new-promise nil))
-  ([abort-cb] (Promise. (atom (->PromiseState nil false nil)) abort-cb)))
+  ([abort-cb]
+   (Promise.
+     (atom (->PromiseState nil false nil))
+     abort-cb
+     (AtomicBoolean. false))))

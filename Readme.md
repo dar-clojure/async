@@ -11,9 +11,9 @@ a funky way to get values from channels. For such case channels
 are too heavy. When you have lots of async values coming from cache their
 impact on performance might be unacceptable.
 
-The goal of this library is to provide just a `go` block without unnecessary features and guarantees.
+This library provides just a `go` block without unnecessary features.
 We take it as-is from core.async, replace channels with lightweight promises
-and remove all threadpool dispatch magic. Our `go` block runs synchronously (like a `do` block)
+and remove all threadpool dispatch. Our `go` block runs synchronously (like a `do` block)
 until it hits the first async point. Then if the result is immediately available
 it just continues running in the current thread,
 otherwise the execution will be resumed on a thread that delivered result.
@@ -35,7 +35,7 @@ otherwise the execution will be resumed on a thread that delivered result.
   (value p) ; => 1
   (deliver! p 2)
   (value p) ; => 1 (ignors subsequent deliverings)
-  (then p #(print %)) ; => 1 in console, called immediately
+  (then p #(print %)) ; => "1" is printed immediately
   )
 
 ;
