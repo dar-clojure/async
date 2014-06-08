@@ -96,6 +96,24 @@ otherwise the execution will be resumed on a thread that delivered result.
     (<<! result))) ; => true
 ```
 
+##Installation
+
+via leiningen
+
+```clojure
+[dar/async "0.1.0"]
+```
+
+via maven
+
+```xml
+<dependency>
+  <groupId>dar</groupId>
+  <artifactId>async</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
 ##License
 
 Copyright © 2014 Eldar Gabdullin

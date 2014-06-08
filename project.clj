@@ -1,4 +1,4 @@
-(defproject dar/async "0.1.0-SNAPSHOT"
+(defproject dar/async "0.1.0"
   :description "Async programming facilities"
   :url "http://github.com/dar-clojure/async"
   :license {:name "Eclipse Public License"
