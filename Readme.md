@@ -116,6 +116,6 @@ via maven
 
 ##License
 
-Copyright © 2014 Eldar Gabdullin
+Copyright © 2014 Eldar Gabdullin, Rich Hickey & contributors
 
 Distributed under the Eclipse Public License, the same as Clojure.
