@@ -1,22 +1,20 @@
-#dar.async
+#dar.async [![Clojars Project](http://clojars.org/dar/async/latest-version.svg)](http://clojars.org/dar/async)
 
-##Motivation
+We take a `go` block from [core.async](https://github.com/clojure/core.async)
+as is, remove all threadpool dispatch and replace channels with lightweight
+[promises](https://github.com/dar-clojure/async.promise).
+Our `go` block runs synchronously (like a `do` block) until it hits the first async point.
+Then, if the result is immediately available,
+it just continues running on the same thread,
+otherwise execution will be resumed on a thread that delivered result.
+Basically, this is how C# works.
 
-[core.async](https://github.com/clojure/core.async) is heavily
-focused on [CSP](http://en.wikipedia.org/wiki/Communicating_sequential_processes).
-While CSP itself might be a good idea, it's certainly not the case that every async
-problem is a CSP problem. For example, you often use `go` block just because
-it allows to write non-blocking code in a regular linear fashion, not because it is
-a funky way to get values from channels. For such case channels
-are too heavy. When you have lots of async values coming from cache their
-impact on performance might be unacceptable.
-
-This library provides just a `go` block without unnecessary features.
-We take it as-is from core.async, replace channels with lightweight promises
-and remove all threadpool dispatch. Our `go` block runs synchronously (like a `do` block)
-until it hits the first async point. Then if the result is immediately available
-it just continues running in the current thread,
-otherwise the execution will be resumed on a thread that delivered result.
+The main reason is a performance. Sometimes you want
+to write non-blocking code not because it is really asynchronous,
+but because it might be asynchronous, or may be you have a lot's
+of values coming from cache. For such cases [core.async](https://github.com/clojure/core.async)
+is unacceptably slow. Abortable computations is another case
+not covered quite by core.async.
 
 ##Examples
 
@@ -98,21 +96,7 @@ otherwise the execution will be resumed on a thread that delivered result.
 
 ##Installation
 
-via leiningen
-
-```clojure
-[dar/async "0.1.0"]
-```
-
-via maven
-
-```xml
-<dependency>
-  <groupId>dar</groupId>
-  <artifactId>async</artifactId>
-  <version>0.1.0</version>
-</dependency>
-```
+Available via [Clojars](https://clojars.org/dar/async)
 
 ##License
 
