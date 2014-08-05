@@ -13,8 +13,9 @@ The main reason is a performance. Sometimes you want
 to write non-blocking code not because it is really asynchronous,
 but because it might be asynchronous, or may be you have a lot's
 of values coming from cache. For such cases [core.async](https://github.com/clojure/core.async)
-is unacceptably slow. Abortable computations is another case
-not covered quite by core.async.
+is unacceptably slow.
+
+Abortable computations is another case not covered quite by core.async.
 
 ##Examples
 
