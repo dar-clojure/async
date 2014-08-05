@@ -26,15 +26,20 @@
     (abort! p)
     (is (= "aborted" (value p)))))
 
-;
-; abort
-;
+(deftest basic
+  (is (= 10 (value (go
+                     (+ (<? 5) (<? 5)))))))
 
-(let [p (new-promise (fn on-abort [this]
-                       (deliver! this (Exception. "Aborted!"))))
-      result (go
-               (<? p)
-               true)]
-  (abort! p)
-  (instance? Exception
-    (<<! result))) ; => true
+(deftest try-catch
+  (let [entered? (atom false)
+        called? (atom false)
+        res (go
+              (try
+                (reset! entered? true)
+                (<? (ex-info "foo" {:i 10}))
+                (reset! called? true)
+                (catch Throwable e
+                  (-> e ex-data))))]
+    (is @entered?)
+    (is (not @called?))
+    (is (= {:i 10} (value res)))))
